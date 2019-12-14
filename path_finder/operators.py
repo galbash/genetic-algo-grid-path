@@ -1,14 +1,9 @@
 import abc
 import random
-from typing import Sequence
+from typing import Sequence, Tuple
 
-from path_finder.chromosome import Chromosome, Direction
-
-DIRECTIONS = list(Direction)
-
-
-def random_direction():
-    return random.choice(DIRECTIONS)
+from path_finder.chromosome import Chromosome
+from path_finder.direction import random_direction
 
 
 class Operator(abc.ABC):
@@ -16,7 +11,7 @@ class Operator(abc.ABC):
 
 
 class ProbabilityOperator(Operator):
-    def __init__(self, probability):
+    def __init__(self, probability: float):
         self.probability = probability
 
     @property
@@ -28,10 +23,9 @@ class Cross(ProbabilityOperator):
     @abc.abstractmethod
     def __call__(
         self, parent1: Chromosome, parent2: Chromosome
-    ) -> (
-        Chromosome,
-        Chromosome,
-    ):
+    ) -> Tuple[
+        Chromosome, Chromosome,
+    ]:
         raise NotImplementedError()
 
 
@@ -43,10 +37,9 @@ class PathFinderCross(Cross):
 
     def __call__(
         self, parent1: Chromosome, parent2: Chromosome
-    ) -> (
-        Chromosome,
-        Chromosome,
-    ):
+    ) -> Tuple[
+        Chromosome, Chromosome,
+    ]:
         if not self.test_probability:
             return (
                 parent1,
@@ -77,6 +70,9 @@ class PathFinderChoose(Choose):
 
 
 class Mutation(ProbabilityOperator):
+    def __init__(self, min_dist, probability: float):
+        super().__init__(probability / min_dist)
+
     @abc.abstractmethod
     def __call__(self, chrom: Chromosome) -> Chromosome:
         raise NotImplementedError()
@@ -85,8 +81,8 @@ class Mutation(ProbabilityOperator):
 class SwitchMutation(Mutation):
     DEFAULT_PROBABILITY = 0.08
 
-    def __init__(self, probability=DEFAULT_PROBABILITY):
-        super().__init__(probability)
+    def __init__(self, min_dist, probability=DEFAULT_PROBABILITY):
+        super().__init__(min_dist, probability)
 
     def __call__(self, chrom: Chromosome) -> Chromosome:
         return [random_direction() if self.test_probability else d for d in chrom]
@@ -95,8 +91,8 @@ class SwitchMutation(Mutation):
 class AddMutation(Mutation):
     DEFAULT_PROBABILITY = 0.04
 
-    def __init__(self, probability=DEFAULT_PROBABILITY):
-        super().__init__(probability)
+    def __init__(self, min_dist, probability=DEFAULT_PROBABILITY):
+        super().__init__(min_dist, probability)
 
     def __call__(self, chrom: Chromosome) -> Chromosome:
         new_chrom = []
@@ -114,10 +110,10 @@ class AddMutation(Mutation):
 
 
 class RemoveMutation(Mutation):
-    DEFAULT_PROBABILITY = 0.04
+    DEFAULT_PROBABILITY = 0.05
 
-    def __init__(self, probability=DEFAULT_PROBABILITY):
-        super().__init__(probability)
+    def __init__(self, min_dist, probability=DEFAULT_PROBABILITY):
+        super().__init__(min_dist, probability)
 
     def __call__(self, chrom: Chromosome) -> Chromosome:
         return [

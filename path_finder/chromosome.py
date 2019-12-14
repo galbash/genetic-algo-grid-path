@@ -2,16 +2,13 @@
 A chromosome
 """
 
-import enum
 import typing
+import random
 
-
-@enum.unique
-class Direction(enum.Enum):
-    UP = "U"
-    DOWN = "D"
-    LEFT = "L"
-    RIGHT = "R"
-
+from path_finder.direction import Direction, DIRECTIONS
 
 Chromosome = typing.Sequence[Direction]
+
+
+def random_chromosome(size: int):
+    return random.choices(DIRECTIONS, k=size)
