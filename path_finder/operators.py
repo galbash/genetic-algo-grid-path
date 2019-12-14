@@ -79,7 +79,7 @@ class Mutation(ProbabilityOperator):
 
 
 class SwitchMutation(Mutation):
-    DEFAULT_PROBABILITY = 0.08
+    DEFAULT_PROBABILITY = 0.1
 
     def __init__(self, min_dist, probability=DEFAULT_PROBABILITY):
         super().__init__(min_dist, probability)
@@ -89,7 +89,7 @@ class SwitchMutation(Mutation):
 
 
 class AddMutation(Mutation):
-    DEFAULT_PROBABILITY = 0.04
+    DEFAULT_PROBABILITY = 0.05
 
     def __init__(self, min_dist, probability=DEFAULT_PROBABILITY):
         super().__init__(min_dist, probability)

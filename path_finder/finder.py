@@ -1,5 +1,5 @@
 import copy
-from path_finder.grid import Grid, Point
+from path_finder.grid import GridWrapper
 from path_finder.operators import (
     PathFinderChoose,
     PathFinderCross,
@@ -19,9 +19,11 @@ from path_finder.selector import RankingSelector
 class Finder:
     ELITISM_FACTOR = 0.05
 
-    def __init__(self, grid: Grid, start: Point, target: Point, population_size: int):
+    def __init__(
+        self, grid: GridWrapper, population_size: int, fitness_class=PathFinderFitness
+    ):
         self.grid = grid
-        self.min_dist = distance(start, target)
+        self.min_dist = distance(grid.start, grid.target)
         self.operations = PathFinderOperationSequence(
             PathFinderCross(),
             PathFinderChoose(),
@@ -32,7 +34,7 @@ class Finder:
             ],
         )
         self.population_size = population_size
-        self.fitness_func = PathFinderFitness(grid, start, target)
+        self.fitness_func = fitness_class(grid)
         self.population = Population(
             [random_chromosome(self.min_dist) for _ in range(self.population_size)]
             + [

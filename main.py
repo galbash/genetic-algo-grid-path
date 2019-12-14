@@ -1,8 +1,8 @@
 from path_finder.finder import Finder
-from path_finder.grid import Cell, Point, simulate_movement
 from path_finder.utils import distance
+from path_finder.environments import *
+from path_finder.fitness import PathFinderFitnessRewardLength
 
-GRID = [[Cell() for i in range(100)] for j in range(100)]
 
 # for i in range(100):
 #     if i % 25 != 0:
@@ -22,33 +22,38 @@ GRID = [[Cell() for i in range(100)] for j in range(100)]
 #         for j in range(49, 100):
 #             GRID[i][j].blocked = True
 
-for i in range(28):
-    GRID[60][i].blocked = True
+# for i in range(28):
+#     GRID[60][i].blocked = True
 
-for i, row in enumerate(GRID[::-1]):
-    for j, cell in enumerate(row):
-        print('*' if cell.blocked else ' ', end='')
-    print()
-
-input('>>>>>>')
-
-START = Point(0, 0)
-TARGET = Point(0, 99)
-FINDER = Finder(GRID, START, TARGET, 40)
 
 
 def main():
+    grid = wall_env(Size.SMALL)
+    print(grid)
+    finder = Finder(grid, 50, PathFinderFitnessRewardLength)
+    input('start >>>>>>>')
+    top_score = 0
+    no_change_count = 0
     while (
-        simulate_movement(GRID, START, FINDER.population.top_item) != TARGET
-        or len(FINDER.population.top_item) > distance(START, TARGET)
-    ):
-        #print("generation", FINDER.generation, "top", FINDER.population.top_item)
-        print("generation", FINDER.generation)
-        print("fitness", FINDER.population.population[0].fitness, "length", len(FINDER.population.top_item))
-        print("min distance", distance(START, TARGET), "distance", distance(simulate_movement(GRID, START, FINDER.population.top_item), TARGET))
-        FINDER.run_generation()
+            (grid.simulate_movement(finder.population.top_item) != grid.target
+        or len(finder.population.top_item) > distance(grid.start, grid.target)) and no_change_count < 2000
 
-    print("done, chrom length:", len(FINDER.population.top_item))
+    ):
+        current_best_fit = finder.population.population[0].fitness
+        print("generation", finder.generation)
+        print("fitness", current_best_fit, "length", len(finder.population.top_item))
+        print("min distance", distance(grid.start, grid.target), "distance", distance(grid.simulate_movement(finder.population.top_item), grid.target))
+        finder.run_generation()
+
+        if current_best_fit > top_score:
+            no_change_count = 0
+            top_score = current_best_fit
+        else:
+            no_change_count += 1
+
+
+    print("done, chrom length:", len(finder.population.top_item), "no_change_count:", no_change_count)
+    print(grid.to_table(finder.population.top_item).table)
 
 
 if __name__ == "__main__":
