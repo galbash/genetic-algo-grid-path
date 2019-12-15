@@ -28,7 +28,7 @@ from path_finder.fitness import PathFinderFitnessRewardLength
 
 
 def main():
-    grid = wall_env(Size.SMALL)
+    grid = multiway_wall_env(Size.LARGE)
     print(grid)
     finder = Finder(grid, 50, PathFinderFitnessRewardLength)
     input('start >>>>>>>')

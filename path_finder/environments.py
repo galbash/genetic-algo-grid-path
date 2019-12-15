@@ -48,3 +48,27 @@ def wall_env(size: Size, space_prec: float = 0.2) -> Grid:
     return GridWrapper(
         grid, Point(size.value - 1, 0), Point(size.value - 1, size.value - 1)
     )
+
+def multi_wall_env(size: Size, space_prec: float=0.2) -> Grid:
+    grid = _create_env(size)
+    for i in range(math.floor(space_prec * size.value), size.value):
+        grid[size.value // 4][i].blocked = True
+        grid[size.value // 2][i].blocked = True
+        grid[3*size.value // 4][i].blocked = True
+
+    return GridWrapper(
+        grid, Point(size.value - 1, 0), Point(size.value - 1, size.value - 1)
+    )
+
+def multiway_wall_env(size: Size, space_prec: float=0.2) -> Grid:
+    grid = _create_env(size)
+    for i in range(math.floor(space_prec * size.value), size.value):
+        grid[size.value // 4][i].blocked = True
+        grid[3*size.value // 4][i].blocked = True
+
+    for i in range(0, size.value - math.floor(space_prec * size.value)):
+        grid[size.value // 2][i].blocked = True
+
+    return GridWrapper(
+        grid, Point(size.value - 1, 0), Point(size.value - 1, size.value - 1)
+    )

@@ -57,7 +57,7 @@ class PathFinderFitnessRewardLength(Fitness):
         #     # fix no motivation for last step (barrier not possible)
         #     return self.grid_size - dist
         if dist != 0:
-            return self.grid_size - dist + min((len(chrom) / self.grid_size), 1 / 2)
+            return self.grid_size - dist + min((len(chrom) / self.grid_size), 0.9999)
         else:
             # reward extra 1 for destination to make that beat length reward
             return self.grid_size + 1 - (len(chrom) / self.grid_size ** 2)
