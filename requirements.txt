@@ -1,1 +1,4 @@
 terminaltables
+methodtools
+progressbar2
+ray

@@ -1,59 +1,68 @@
+from typing import Callable
+import os.path
+import itertools
+import logging
+import progressbar
+
 from path_finder.finder import Finder
-from path_finder.utils import distance
+from path_finder.point import distance
 from path_finder.environments import *
 from path_finder.fitness import PathFinderFitnessRewardLength
+from path_finder.reporter import Reporter
+
+logging.getLogger().setLevel(logging.INFO)
 
 
-# for i in range(100):
-#     if i % 25 != 0:
-#         GRID[50][i].blocked = True
-#
-# for i in range(99):
-#     if i != 30:
-#         GRID[i][60].blocked = True
-#
-# GRID[99][62].blocked = True
+ENVS = [
+    empty_env,
+    center_block_env,
+    peekhole_env,
+    wall_env,
+    multi_wall_env,
+    multiway_wall_env,
+]
+POPULATION_SIZES = [20, 40, 60]
 
-# for i in range(40, 100, 4):
-#     if i % 8 == 0:
-#         for j in range(0, 54):
-#             GRID[i][j].blocked = True
-#     else:
-#         for j in range(49, 100):
-#             GRID[i][j].blocked = True
 
-# for i in range(28):
-#     GRID[60][i].blocked = True
+def run_for_env(
+    name: str,
+    creator: Callable[[int], GridWrapper],
+    grid_size: Size,
+    population_size: int,
+):
+    logging.info("starting execution for %s", name)
+    grid = creator(grid_size)
+    finder = Finder(grid, population_size, PathFinderFitnessRewardLength)
+    top_score = 0
+    no_change_count = 0
+    with Reporter(
+        finder, os.path.join("out", name)
+    ) as reporter, progressbar.ProgressBar(max_value=progressbar.UnknownLength) as bar:
+        while (
+            grid.calculate_distance(finder.population.top_item) != 0
+            or len(finder.population.top_item) > distance(grid.start, grid.target)
+        ) and no_change_count < 2000:
+            reporter.report()
+            finder.run_generation()
+            bar.update(finder.generation)
 
+            if finder.population.top_fitness > top_score:
+                no_change_count = 0
+                top_score = finder.population.top_fitness
+            else:
+                no_change_count += 1
+
+        reporter.report()
+    logging.info("execution for %s done", name)
 
 
 def main():
-    grid = multiway_wall_env(Size.LARGE)
-    print(grid)
-    finder = Finder(grid, 50, PathFinderFitnessRewardLength)
-    input('start >>>>>>>')
-    top_score = 0
-    no_change_count = 0
-    while (
-            (grid.simulate_movement(finder.population.top_item) != grid.target
-        or len(finder.population.top_item) > distance(grid.start, grid.target)) and no_change_count < 2000
-
+    for env, pop_size, grid_size in itertools.product(
+        ENVS, POPULATION_SIZES, list(Size)
     ):
-        current_best_fit = finder.population.population[0].fitness
-        print("generation", finder.generation)
-        print("fitness", current_best_fit, "length", len(finder.population.top_item))
-        print("min distance", distance(grid.start, grid.target), "distance", distance(grid.simulate_movement(finder.population.top_item), grid.target))
-        finder.run_generation()
-
-        if current_best_fit > top_score:
-            no_change_count = 0
-            top_score = current_best_fit
-        else:
-            no_change_count += 1
-
-
-    print("done, chrom length:", len(finder.population.top_item), "no_change_count:", no_change_count)
-    print(grid.to_table(finder.population.top_item).table)
+        run_for_env(
+            f"{env.__name__}-{grid_size.name}-{pop_size}", env, grid_size, pop_size
+        )
 
 
 if __name__ == "__main__":

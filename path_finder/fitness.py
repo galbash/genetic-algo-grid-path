@@ -1,8 +1,7 @@
 import abc
-import math
 from path_finder.chromosome import Chromosome
-from path_finder.grid import Point, GridWrapper
-from path_finder.utils import distance
+from path_finder.grid import GridWrapper
+from path_finder.point import distance
 
 
 class Fitness(abc.ABC):

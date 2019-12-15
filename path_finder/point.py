@@ -1,7 +1,9 @@
 import math
+from collections import namedtuple
 
-from path_finder.grid import Point
 from functools import lru_cache
+
+Point = namedtuple("Point", "x y")
 
 
 @lru_cache()

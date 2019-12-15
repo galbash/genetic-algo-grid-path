@@ -1,4 +1,5 @@
 import copy
+import ray
 from path_finder.grid import GridWrapper
 from path_finder.operators import (
     PathFinderChoose,
@@ -10,7 +11,7 @@ from path_finder.operators import (
 )
 
 from path_finder.chromosome import random_chromosome
-from path_finder.utils import distance
+from path_finder.point import distance
 from path_finder.fitness import PathFinderFitness
 from path_finder.population import Population
 from path_finder.selector import RankingSelector
@@ -52,9 +53,11 @@ class Finder:
         while len(new_items) < self.population_size * self.ELITISM_FACTOR:
             new_items.append(copy.deepcopy(self.population.top_item))
 
+        remaining_count = self.population_size - len(new_items)
         selector = RankingSelector(self.population)
-        while len(new_items) < self.population_size:
-            new_item = self.operations(*selector.select())
+        couples = selector.select(remaining_count)
+        for parent1, parent2 in couples:
+            new_item = self.operations(parent1, parent2)
             new_items.append(new_item)
 
         self.population = Population(new_items, self.fitness_func)

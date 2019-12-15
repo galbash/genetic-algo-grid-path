@@ -1,8 +1,10 @@
 from typing import Sequence
 from path_finder.direction import Direction
 from path_finder.chromosome import Chromosome
-from collections import namedtuple
 from terminaltables import SingleTable
+from methodtools import lru_cache
+
+from path_finder.point import Point, distance
 
 
 class Cell:
@@ -10,7 +12,6 @@ class Cell:
         self.blocked = blocked
 
 
-Point = namedtuple("Point", "x y")
 Grid = Sequence[Sequence[Cell]]
 
 
@@ -36,6 +37,7 @@ class GridWrapper:
         if grid[point.y][point.x].blocked:
             raise ValueError("point occupied")
 
+    @lru_cache()
     def _next_point(self, current: Point, step: Direction):
         next = Point(current.x + step.x, current.y + step.y)
         if (
@@ -56,6 +58,10 @@ class GridWrapper:
             current = self._next_point(current, step)
 
         return current
+
+    def calculate_distance(self, steps: Chromosome) -> int:
+        current = self.simulate_movement(steps)
+        return distance(current, self.target)
 
     def to_table(self, path: Chromosome = None) -> SingleTable:
         table_data = [
@@ -79,4 +85,4 @@ class GridWrapper:
         return table
 
     def __str__(self) -> str:
-        return self.to_table().table
+        return self.to_table().table + "\n"

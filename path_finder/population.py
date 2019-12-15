@@ -14,6 +14,8 @@ class Population:
             key=lambda ranked_item: ranked_item.fitness,
             reverse=True,
         )
+        self.population_length = len(self.population)
+        self.median_index = self.population_length // 2
 
     @property
     def items(self) -> Sequence[Chromosome]:
@@ -22,3 +24,15 @@ class Population:
     @property
     def top_item(self) -> Chromosome:
         return self.population[0].chromosome
+
+    @property
+    def top_fitness(self) -> Chromosome:
+        return self.population[0].fitness
+
+    @property
+    def median_item(self) -> Chromosome:
+        return self.population[self.median_index].chromosome
+
+    @property
+    def median_fitness(self) -> Chromosome:
+        return self.population[self.median_index].fitness
