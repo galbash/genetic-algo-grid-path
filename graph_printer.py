@@ -60,7 +60,8 @@ class GraphCreator:
         max_generation,
         stat_name,
         y_title=None,
-        scale="symlog",
+        # scale="symlog",
+        scale="linear",
         **scale_kargs,
     ) -> None:
         logging.info(f"generating stat {stat_name}")
