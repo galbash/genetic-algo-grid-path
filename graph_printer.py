@@ -38,10 +38,7 @@ class GraphCreator:
         }
         max_generation = max(len(pop) for pop in population_stats.values())
         self.save_graph(
-            population_stats,
-            max_generation,
-            "length",
-            "Path Length (Cells)",
+            population_stats, max_generation, "length", "Path Length (Cells)",
         )
         self.save_graph(
             population_stats,
@@ -49,9 +46,7 @@ class GraphCreator:
             "distance",
             "Distance from target (Cells)",
         )
-        self.save_graph(
-            population_stats, max_generation, "fitness"
-        )
+        self.save_graph(population_stats, max_generation, "fitness")
         logging.info("done")
 
     def save_graph(
@@ -60,30 +55,26 @@ class GraphCreator:
         max_generation,
         stat_name,
         y_title=None,
-        # scale="symlog",
-        scale="linear",
-        **scale_kargs,
     ) -> None:
         logging.info(f"generating stat {stat_name}")
         y_title = y_title if y_title else stat_name.capitalize()
-        fig, axs = plt.subplots(len(population_stats),
-            num=None, figsize=(14, 12), dpi=80, facecolor="w", edgecolor="k"
+        fig, axs = plt.subplots(
+            2, num=None, figsize=(14, 12), dpi=80, facecolor="w", edgecolor="k"
         )
         plt.xlabel("Generation")
-        for i, (pop_size, stats) in enumerate(population_stats.items()):
-            self.add_plot(f"median_{stat_name}", stats, max_generation, pop_size,axs[i])
-        for i, (pop_size, stats) in enumerate(population_stats.items()):
+        for i, stat_type in enumerate(("top", "median",)):
             ax = axs[i]
-            self.add_plot(f"top_{stat_name}", stats, max_generation, pop_size, axs[i])
-            #ax.title(f"{stat_name} by generation. population: {pop_size}")
+            for pop_size, stats in population_stats.items():
+                self.add_plot(
+                    f"{stat_type}_{stat_name}", stats, max_generation, pop_size, ax
+                )
+            # ax.title(f"{stat_name} by generation. population: {pop_size}")
             ax.set_ylabel(y_title)
             ax.legend(loc="best")
-            ax.set_yscale(scale, **scale_kargs)
 
         fig.savefig(
             os.path.join(
-                self.output_path,
-                f"{self.env_name}-{self.grid_size.name}-{stat_name}",
+                self.output_path, f"{self.env_name}-{self.grid_size.name}-{stat_name}",
             )
         )
         plt.close(fig)
