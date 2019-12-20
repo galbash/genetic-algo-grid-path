@@ -1,7 +1,9 @@
-import csv
 import os
 import os.path
+import csv
+from typing import Iterator
 from dataclasses import dataclass, asdict
+from dataclass_csv import DataclassReader
 from path_finder.finder import Finder
 
 
@@ -62,3 +64,13 @@ class Reporter:
             )
 
         # not deleting stats cause can be used after exit
+
+
+class Reader:
+    def __init__(self, path):
+        self.path = path
+
+    def read(self) -> Iterator[FinderState]:
+        with open(os.path.join(self.path, "report.csv"), "rt") as f:
+            reader = DataclassReader(f, FinderState)
+            yield from reader

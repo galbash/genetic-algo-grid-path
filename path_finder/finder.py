@@ -1,5 +1,4 @@
 import copy
-import ray
 from path_finder.grid import GridWrapper
 from path_finder.operators import (
     PathFinderChoose,

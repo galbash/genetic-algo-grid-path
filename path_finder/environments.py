@@ -75,3 +75,13 @@ def multiway_wall_env(size: Size, space_prec: float = 0.2) -> Grid:
     return GridWrapper(
         grid, Point(size.value - 1, 0), Point(size.value - 1, size.value - 1)
     )
+
+
+ENVS = [
+    empty_env,
+    center_block_env,
+    peekhole_env,
+    wall_env,
+    multi_wall_env,
+    multiway_wall_env,
+]

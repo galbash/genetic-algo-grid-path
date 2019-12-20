@@ -12,15 +12,6 @@ from path_finder.reporter import Reporter
 
 logging.getLogger().setLevel(logging.INFO)
 
-
-ENVS = [
-    empty_env,
-    center_block_env,
-    peekhole_env,
-    wall_env,
-    multi_wall_env,
-    multiway_wall_env,
-]
 POPULATION_SIZES = [20, 40, 60]
 
 
