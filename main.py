@@ -1,8 +1,12 @@
+"""
+An interface to run the path finder genetic algorithm
+"""
 from typing import Callable
 import os.path
 import itertools
 import logging
 import progressbar
+import fire
 
 from path_finder.finder import Finder
 from path_finder.point import distance
@@ -20,7 +24,14 @@ def run_for_env(
     creator: Callable[[int], GridWrapper],
     grid_size: Size,
     population_size: int,
-):
+) -> None:
+    """
+    Executes the genetic algorithm for a specific setting
+    :param name: name for the execution
+    :param creator: environment creator function
+    :param grid_size: the grid size to use
+    :param population_size: the population size to use
+    """
     logging.info("starting execution for %s", name)
     grid = creator(grid_size)
     finder = Finder(grid, population_size, PathFinderFitnessRewardLength)
@@ -47,14 +58,23 @@ def run_for_env(
     logging.info("execution for %s done", name)
 
 
-def main():
-    for env, pop_size, grid_size in itertools.product(
-        ENVS, POPULATION_SIZES, list(Size)
+def main(env_name: str = None, pop_size: int = None, size: str = None):
+    """
+    interface for running the algorithm
+    :param env_name: specific environment to use. defaults to all
+    :param pop_size: specific population size to use. defaults to all
+    :param size: specific grid size to use. defaults to all
+    """
+    env_items = ENVS.items()
+    env_names = [env_name] if env_name else [env[0] for env in env_items]
+    env_creators = [ENVS[env_name]] if env_name else [env[1] for env in env_items]
+    pop_sizes = [pop_size] if pop_size else POPULATION_SIZES
+    sizes = [Size[size]] if size else list(Size)
+    for (env_name, env), pop_size, grid_size in itertools.product(
+        zip(env_names, env_creators), pop_sizes, sizes
     ):
-        run_for_env(
-            f"{env.__name__}-{grid_size.name}-{pop_size}", env, grid_size, pop_size
-        )
+        run_for_env(f"{env_name}-{grid_size.name}-{pop_size}", env, grid_size, pop_size)
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)

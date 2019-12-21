@@ -1,3 +1,6 @@
+"""
+The path finder, used to run the genetic algorithm
+"""
 import copy
 from path_finder.grid import GridWrapper
 from path_finder.operators import (
@@ -17,11 +20,20 @@ from path_finder.selector import RankingSelector
 
 
 class Finder:
+    """
+    The path finder, used to run the genetic algorithm
+    """
+
     ELITISM_FACTOR = 0.05
 
     def __init__(
         self, grid: GridWrapper, population_size: int, fitness_class=PathFinderFitness
     ):
+        """
+        :param grid: The environment to run the algorithm on
+        :param population_size: The size of the population to generate
+        :param fitness_class: The fitness function to use
+        """
         self.grid = grid
         self.min_dist = distance(grid.start, grid.target)
         self.operations = PathFinderOperationSequence(
@@ -46,6 +58,9 @@ class Finder:
         self.generation = 0
 
     def run_generation(self) -> None:
+        """
+        makes an iteration: mates parents and creates a new generation of children
+        """
         new_items = []
 
         # elitism

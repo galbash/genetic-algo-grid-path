@@ -1,3 +1,6 @@
+"""
+Metrics collection
+"""
 import os
 import os.path
 import csv
@@ -9,6 +12,10 @@ from path_finder.finder import Finder
 
 @dataclass
 class FinderState:
+    """
+    A state of the algorithm in a given generation
+    """
+
     generation: int
     top_distance: int
     top_length: int
@@ -22,7 +29,16 @@ FIELD_NAMES = list(FinderState.__annotations__.keys())
 
 
 class Reporter:
+    """
+    A class used for metrics collection
+    """
+
     def __init__(self, finder: Finder, path: str, print_stats: bool = False):
+        """
+        :param finder: The finder we are tracking
+        :param path: The disk path to store metrics in
+        :param print_stats: debug flag, if true stats will be printed to output
+        """
         self.finder = finder
         self.path = path
         self.stats = None
@@ -37,6 +53,9 @@ class Reporter:
         return self
 
     def report(self) -> None:
+        """
+        Store metrics on current generation
+        """
         top_item = self.finder.population.top_item
         median_item = self.finder.population.median_item
         stat = FinderState(
@@ -67,10 +86,21 @@ class Reporter:
 
 
 class Reader:
+    """
+    A class used to read Reporter metrics
+    """
+
     def __init__(self, path):
+        """
+        :param path: the disk path metrics are stored in
+        """
         self.path = path
 
     def read(self) -> Iterator[FinderState]:
+        """
+        Reads the Reporter's metrics
+        :return: A list of states the algorithm execution reported
+        """
         with open(os.path.join(self.path, "report.csv"), "rt") as f:
             reader = DataclassReader(f, FinderState)
             yield from reader

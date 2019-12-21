@@ -3,3 +3,4 @@ methodtools
 progressbar2
 matplotlib
 dataclass-csv
+fire

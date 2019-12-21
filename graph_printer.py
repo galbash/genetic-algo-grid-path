@@ -1,4 +1,6 @@
-import math
+"""
+analyze mtrics in a graphic way
+"""
 import logging
 import os.path
 import itertools
@@ -16,7 +18,16 @@ log_func = lambda y: numpy.log(y)
 
 
 class GraphCreator:
+    """
+    Creates Graphs from algorithm execution results
+    """
+
     def __init__(self, base_path, env_name, grid_size: Size):
+        """
+        :param base_path: Path of the results
+        :param env_name: The environment we are analyzing
+        :param grid_size: The grid size we are analyzing
+        """
         self.base_path = base_path
         self.env_name = env_name
         self.grid_size = grid_size
@@ -24,6 +35,9 @@ class GraphCreator:
         os.makedirs(self.output_path, exist_ok=True)
 
     def create_graph(self):
+        """
+        paints the graphs
+        """
         logging.info(f"starting {self.env_name} {self.grid_size.name}")
         population_stats = {
             pop_size: list(
@@ -50,11 +64,7 @@ class GraphCreator:
         logging.info("done")
 
     def save_graph(
-        self,
-        population_stats,
-        max_generation,
-        stat_name,
-        y_title=None,
+        self, population_stats, max_generation, stat_name, y_title=None,
     ) -> None:
         logging.info(f"generating stat {stat_name}")
         y_title = y_title if y_title else stat_name.capitalize()
@@ -99,8 +109,11 @@ class GraphCreator:
 
 
 def main():
-    for env, grid_size in itertools.product(ENVS, list(Size)):
-        GraphCreator("out", env.__name__, grid_size).create_graph()
+    """
+    Generates graphs from algorithm metrics data
+    """
+    for (env_name, env), grid_size in itertools.product(ENVS.items(), list(Size)):
+        GraphCreator("out", env_name, grid_size).create_graph()
 
 
 if __name__ == "__main__":

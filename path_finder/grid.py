@@ -1,3 +1,6 @@
+"""
+The grid the robot is moving on
+"""
 from typing import Sequence
 from path_finder.direction import Direction
 from path_finder.chromosome import Chromosome
@@ -16,54 +19,97 @@ Grid = Sequence[Sequence[Cell]]
 
 
 class GridWrapper:
+    """
+    A wrapper for the grid which defines the problem environment:
+      - grid
+      - start
+      - target
+    """
+
     def __init__(self, grid: Grid, start: Point, target: Point):
+        """
+        :param grid: The grid to use
+        :param start: The starting point on the grid
+        :param target: The target point on the grid
+        """
         self.grid = grid
         self.grid_x_size = len(grid[0])
         self.grid_y_size = len(grid)
         self.start = start
         self.target = target
 
-        self.validate_point(grid, start)
-        self.validate_point(grid, target)
+        if not self._check_point(start):
+            raise ValueError("invalid start point", start)
+        if not self._check_point(target):
+            raise ValueError("invalid target point", target)
 
-    def validate_point(self, grid, point):
+    def _check_point(self, point) -> bool:
+        """
+        Checks that a point is accessible on the grid
+        :param point: The point to check
+        """
         if (
             point.y < 0
             or point.x < 0
             or point.y >= self.grid_y_size
             or point.x >= self.grid_x_size
         ):
-            raise ValueError("invalid point", point)
-        if grid[point.y][point.x].blocked:
-            raise ValueError("point occupied")
+            return False
+        if self.grid[point.y][point.x].blocked:
+            return False
+        return True
 
     @lru_cache()
     def _next_point(self, current: Point, step: Direction):
+        """
+        Finds the step result
+        :param current: Current point on the grid
+        :param step: The direction we are moving in
+        :return: The next point on the grid
+        """
         next = Point(current.x + step.x, current.y + step.y)
-        if (
-            next.y < 0
-            or next.x < 0
-            or next.y >= self.grid_y_size
-            or next.x >= self.grid_x_size
-        ):
-            return current
-        if self.grid[next.y][next.x].blocked:
+        if not self._check_point(next):
             return current
 
         return next
 
-    def simulate_movement(self, steps: Chromosome) -> Point:
+    @lru_cache()
+    def _simulate_movement(self, steps: tuple) -> Point:
+        """
+        Simulates the movement of a series of steps on the grid
+        :param steps: The series of steps
+        :return: the point we stop in
+        """
         current = self.start
         for step in steps:
             current = self._next_point(current, step)
 
         return current
 
+    def simulate_movement(self, steps: Chromosome) -> Point:
+        """
+        Simulates the movement of a chromosome on the grid
+        :param steps: The series of steps
+        :return: the point we stop in
+        """
+        return self._simulate_movement(tuple(steps))
+
     def calculate_distance(self, steps: Chromosome) -> int:
+        """
+        Calculates the distance of the robot from the target after performint hte
+        steps dictated by the chromosome
+        :param steps: The chromosome
+        :return: the distance to the target
+        """
         current = self.simulate_movement(steps)
         return distance(current, self.target)
 
     def to_table(self, path: Chromosome = None) -> SingleTable:
+        """
+        Converts a grid to a textual table
+        :param path: optional path to draw on the grid
+        :return: a SingleTable object
+        """
         table_data = [
             ["*" if cell.blocked else "" for cell in row] for row in self.grid
         ]
