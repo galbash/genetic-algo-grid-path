@@ -1,7 +1,8 @@
 """
 The grid the robot is moving on
 """
-from typing import Sequence
+from typing import Sequence, Iterable
+from itertools import islice
 from path_finder.direction import Direction
 from path_finder.chromosome import Chromosome
 from terminaltables import SingleTable
@@ -16,6 +17,11 @@ class Cell:
 
 
 Grid = Sequence[Sequence[Cell]]
+
+
+def chunk(it: Iterable, size: int) -> Iterable:
+    it = iter(it)
+    return iter(lambda: tuple(islice(it, size)), ())
 
 
 class GridWrapper:
@@ -59,7 +65,6 @@ class GridWrapper:
             return False
         return True
 
-    @lru_cache()
     def _next_point(self, current: Point, step: Direction):
         """
         Finds the step result
@@ -74,13 +79,14 @@ class GridWrapper:
         return next
 
     @lru_cache()
-    def _simulate_movement(self, steps: tuple) -> Point:
+    def _simulate_movement(self, start: Point, steps: tuple) -> Point:
         """
         Simulates the movement of a series of steps on the grid
+        :param start: The start point
         :param steps: The series of steps
         :return: the point we stop in
         """
-        current = self.start
+        current = start
         for step in steps:
             current = self._next_point(current, step)
 
@@ -92,7 +98,11 @@ class GridWrapper:
         :param steps: The series of steps
         :return: the point we stop in
         """
-        return self._simulate_movement(tuple(steps))
+        current = self.start
+        for c in chunk(steps, 50):
+            current = self._simulate_movement(current, tuple(c))
+
+        return current
 
     def calculate_distance(self, steps: Chromosome) -> int:
         """

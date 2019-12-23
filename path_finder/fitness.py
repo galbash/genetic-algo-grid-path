@@ -2,6 +2,7 @@
 Various fitness functions to control the specimen selection in the reproduction stage
 """
 import abc
+import math
 from path_finder.chromosome import Chromosome
 from path_finder.grid import GridWrapper
 from path_finder.point import distance
@@ -44,7 +45,7 @@ class NaiveFitness(Fitness):
         )
 
 
-class PathFinderFitness(Fitness):
+class PathFinderFitnessNoLengthPenalty(Fitness):
     """
     A fitness function that only looks at chromosome length once we hit the target
     """
@@ -58,11 +59,6 @@ class PathFinderFitness(Fitness):
             return self.grid_size - dist
         else:
             return self.grid_size - (len(chrom) / self.grid_size)
-        # return (
-        #     self.grid_size
-        #     - distance(self.grid.simulate_movement(chrom), self.grid.target)
-        #     - (len(chrom) / self.grid_size)
-        # )
 
 
 class PathFinderFitnessRewardLength(Fitness):
@@ -75,15 +71,40 @@ class PathFinderFitnessRewardLength(Fitness):
         """
         see: Fitness.__call__
         """
-        # if (len(chrom)) >= self.grid_size:
-        #     return 0
-
         dist = distance(self.grid.simulate_movement(chrom), self.grid.target)
-        # if dist == 1:
-        #     # fix no motivation for last step (barrier not possible)
-        #     return self.grid_size - dist
         if dist != 0:
-            return self.grid_size - dist + min((len(chrom) / self.grid_size), 0.9999)
+            return self.grid_size - dist + min((len(chrom) / self.grid_size), 0.2)
         else:
             # reward extra 1 for destination to make that beat length reward
             return self.grid_size + 1 - (len(chrom) / self.grid_size)
+
+
+class PathFinderFitnessRewardLengthDistanceGroups(Fitness):
+    """
+    A fitness function that rewards long chromosomes over short chromosomes which do
+    not hit the target.
+    uses distance groups.
+    """
+
+    DISTANCE_GROUPS_IN_AXIS = 5
+
+    @property
+    def dist_group_length(self) -> int:
+        return self.grid.grid_x_size // self.DISTANCE_GROUPS_IN_AXIS
+
+    def __call__(self, chrom: Chromosome) -> float:
+        """
+        see: Fitness.__call__
+        """
+        dist = distance(self.grid.simulate_movement(chrom), self.grid.target)
+        if dist != 0:
+            return (
+                self.grid_size
+                - math.ceil(dist / self.dist_group_length)
+                + min((len(chrom) / self.grid_size), 0.2)
+            )
+        else:
+            # reward extra 1 for destination to make that beat length reward
+            return (
+                self.grid_size + self.dist_group_length - (len(chrom) / self.grid_size)
+            )

@@ -2,6 +2,7 @@
 The path finder, used to run the genetic algorithm
 """
 import copy
+from typing import Type
 from path_finder.grid import GridWrapper
 from path_finder.operators import (
     PathFinderChoose,
@@ -9,12 +10,13 @@ from path_finder.operators import (
     AddMutation,
     SwitchMutation,
     RemoveMutation,
+    RemovePairMutation,
     PathFinderOperationSequence,
 )
 
+from path_finder.fitness import Fitness
 from path_finder.chromosome import random_chromosome
 from path_finder.point import distance
-from path_finder.fitness import PathFinderFitness
 from path_finder.population import Population
 from path_finder.selector import RankingSelector
 
@@ -27,7 +29,7 @@ class Finder:
     ELITISM_FACTOR = 0.05
 
     def __init__(
-        self, grid: GridWrapper, population_size: int, fitness_class=PathFinderFitness
+        self, grid: GridWrapper, population_size: int, fitness_class: Type[Fitness]
     ):
         """
         :param grid: The environment to run the algorithm on
@@ -43,6 +45,7 @@ class Finder:
                 SwitchMutation(self.min_dist),
                 AddMutation(self.min_dist),
                 RemoveMutation(self.min_dist),
+                RemovePairMutation(self.min_dist),
             ],
         )
         self.population_size = population_size

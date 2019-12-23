@@ -11,7 +11,10 @@ import fire
 from path_finder.finder import Finder
 from path_finder.point import distance
 from path_finder.environments import *
-from path_finder.fitness import PathFinderFitnessRewardLength
+from path_finder.fitness import (
+    PathFinderFitnessRewardLength,
+    PathFinderFitnessRewardLengthDistanceGroups,
+)
 from path_finder.reporter import Reporter
 
 logging.getLogger().setLevel(logging.INFO)
@@ -34,16 +37,17 @@ def run_for_env(
     """
     logging.info("starting execution for %s", name)
     grid = creator(grid_size)
-    finder = Finder(grid, population_size, PathFinderFitnessRewardLength)
+    finder = Finder(grid, population_size, PathFinderFitnessRewardLengthDistanceGroups)
     top_score = 0
     no_change_count = 0
     with Reporter(
         finder, os.path.join("out", name)
     ) as reporter, progressbar.ProgressBar(max_value=progressbar.UnknownLength) as bar:
+        dist = grid.calculate_distance(finder.population.top_item)
         while (
-            grid.calculate_distance(finder.population.top_item) != 0
+            dist != 0
             or len(finder.population.top_item) > distance(grid.start, grid.target)
-        ) and no_change_count < 2000:
+        ) and no_change_count < 1500:
             reporter.report()
             finder.run_generation()
             bar.update(finder.generation)
@@ -51,8 +55,17 @@ def run_for_env(
             if finder.population.top_fitness > top_score:
                 no_change_count = 0
                 top_score = finder.population.top_fitness
+                print(grid.to_table(finder.population.top_item).table)
+                logging.info("new top fitness. distance from target: %d", dist)
             else:
                 no_change_count += 1
+
+            if finder.population.top_fitness < top_score:
+                top_score = finder.population.top_fitness
+                print(grid.to_table(finder.population.top_item).table)
+                logging.info("we lost our top score. current dist: %d", dist)
+
+            dist = grid.calculate_distance(finder.population.top_item)
 
         reporter.report()
     logging.info("execution for %s done", name)

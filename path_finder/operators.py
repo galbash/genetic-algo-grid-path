@@ -61,7 +61,7 @@ class PathFinderCross(Cross):
     see Cross
     """
 
-    DEFAULT_PROBABILITY = 0.85
+    DEFAULT_PROBABILITY = 1  # we already use elitism
 
     def __init__(self, probability=DEFAULT_PROBABILITY):
         """
@@ -221,6 +221,34 @@ class RemoveMutation(Mutation):
             for d in chrom
             if not self.test_probability  # keep on most cases, filter only if test_probability = True
         ]
+
+
+class RemovePairMutation(Mutation):
+    """
+    A mutation that removes random pairs of genes (directions) in the chromosome from random locations
+    """
+
+    DEFAULT_PROBABILITY = 0.05
+
+    def __init__(self, min_dist, probability=DEFAULT_PROBABILITY):
+        """
+        See Mutation.__init__
+        """
+        super().__init__(min_dist // 2, probability)
+
+    def __call__(self, chrom: Chromosome) -> Chromosome:
+        """
+        See Mutation.__call__
+        """
+        it = iter(chrom)
+        return sum(
+            (
+                [d1, d2] if d2 else [d1]
+                for d1, d2 in zip(it, it)
+                if not self.test_probability  # keep on most cases, filter only if test_probability = True
+            ),
+            [],
+        )
 
 
 class PathFinderOperationSequence:
