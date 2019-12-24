@@ -90,6 +90,9 @@ class GridWrapper:
         for step in steps:
             current = self._next_point(current, step)
 
+            if current == self.target: # short-circut
+                break
+
         return current
 
     def simulate_movement(self, steps: Chromosome) -> Point:
@@ -101,6 +104,8 @@ class GridWrapper:
         current = self.start
         for c in chunk(steps, 25):
             current = self._simulate_movement(current, tuple(c))
+            if current == self.target: # short-circut
+                break
 
         return current
 
@@ -129,6 +134,8 @@ class GridWrapper:
             for step in path:
                 table_data[current.y][current.x] = step.icon
                 current = self._next_point(current, step)
+                if current == self.target: # short-circut
+                    break
 
         if self.start:
             table_data[self.start.y][self.start.x] = "S"

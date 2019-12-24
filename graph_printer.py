@@ -78,7 +78,6 @@ class GraphCreator:
                 self.add_plot(
                     f"{stat_type}_{stat_name}", stats, max_generation, pop_size, ax
                 )
-            # ax.title(f"{stat_name} by generation. population: {pop_size}")
             ax.set_ylabel(y_title)
             ax.legend(loc="best")
 
@@ -97,9 +96,6 @@ class GraphCreator:
             for i, stat in enumerate(stats)
             if i % sampling == 0
         ]
-        if stat_type.endswith("fitness"):
-            dots = [dot / ((self.grid_size.value ** 2) + 1) for dot in dots]
-        # logging.info("%s", dots)
         logging.debug(f"got {len(dots)} dots")
         ax.plot(
             range(1, max_generation + 2, sampling)[: len(dots)],
