@@ -36,7 +36,7 @@ def empty_env(size: Size) -> GridWrapper:
     return GridWrapper(grid, Point(0, 0), Point(size.value - 1, size.value - 1))
 
 
-def center_block_env(size: Size, percentage=0.2) -> Grid:
+def center_block_env(size: Size, percentage=0.25) -> Grid:
     """
     An environment with a block in the middle
     """
@@ -64,7 +64,7 @@ def peekhole_env(size: Size) -> Grid:
     return GridWrapper(grid, Point(0, 0), Point(size.value - 1, size.value - 1))
 
 
-def wall_env(size: Size, space_prec: float = 0.2) -> Grid:
+def wall_env(size: Size, space_prec: float = 0.25) -> Grid:
     """
     An environment where the robot has to go around a wall
     """
@@ -77,7 +77,7 @@ def wall_env(size: Size, space_prec: float = 0.2) -> Grid:
     )
 
 
-def multi_wall_env(size: Size, space_prec: float = 0.2) -> Grid:
+def multi_wall_env(size: Size, space_prec: float = 0.25) -> Grid:
     """
     An environment where the robot has to go around multiple walls
     """
@@ -92,7 +92,7 @@ def multi_wall_env(size: Size, space_prec: float = 0.2) -> Grid:
     )
 
 
-def multiway_wall_env(size: Size, space_prec: float = 0.2) -> Grid:
+def multiway_wall_env(size: Size, space_prec: float = 0.25) -> Grid:
     """
     An environment where the robot has to go around multiple walls in multiple
     directions

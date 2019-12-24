@@ -108,3 +108,39 @@ class PathFinderFitnessRewardLengthDistanceGroups(Fitness):
             return (
                 self.grid_size + self.dist_group_length - (len(chrom) / self.grid_size)
             )
+
+
+class PathFinderFitnessRewardLengthDistanceGroupsWithLimit(Fitness):
+    """
+    A fitness function that rewards long chromosomes over short chromosomes which do
+    not hit the target.
+    uses distance groups.
+    """
+
+    DISTANCE_GROUPS_IN_AXIS = 5
+
+    @property
+    def dist_group_length(self) -> int:
+        return self.grid.grid_x_size // self.DISTANCE_GROUPS_IN_AXIS
+
+    def __call__(self, chrom: Chromosome) -> float:
+        """
+        see: Fitness.__call__
+        """
+        dist = distance(self.grid.simulate_movement(chrom), self.grid.target)
+        if dist != 0:
+            chrom_len_prop = len(chrom) / self.grid_size
+            if chrom_len_prop > 0.5:
+                # maintain a reasonable length chrom for performance reasons
+                return self.grid_size - math.ceil(dist / self.dist_group_length)
+
+            return (
+                self.grid_size
+                - math.ceil(dist / self.dist_group_length)
+                + min(chrom_len_prop, 0.2)
+            )
+        else:
+            # reward extra 1 for destination to make that beat length reward
+            return (
+                self.grid_size + self.dist_group_length - (len(chrom) / self.grid_size)
+            )

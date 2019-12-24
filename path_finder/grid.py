@@ -99,7 +99,7 @@ class GridWrapper:
         :return: the point we stop in
         """
         current = self.start
-        for c in chunk(steps, 50):
+        for c in chunk(steps, 25):
             current = self._simulate_movement(current, tuple(c))
 
         return current

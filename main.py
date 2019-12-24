@@ -14,6 +14,7 @@ from path_finder.environments import *
 from path_finder.fitness import (
     PathFinderFitnessRewardLength,
     PathFinderFitnessRewardLengthDistanceGroups,
+    PathFinderFitnessRewardLengthDistanceGroupsWithLimit,
 )
 from path_finder.reporter import Reporter
 
@@ -37,7 +38,9 @@ def run_for_env(
     """
     logging.info("starting execution for %s", name)
     grid = creator(grid_size)
-    finder = Finder(grid, population_size, PathFinderFitnessRewardLengthDistanceGroups)
+    finder = Finder(
+        grid, population_size, PathFinderFitnessRewardLengthDistanceGroupsWithLimit
+    )
     top_score = 0
     no_change_count = 0
     with Reporter(
@@ -55,14 +58,14 @@ def run_for_env(
             if finder.population.top_fitness > top_score:
                 no_change_count = 0
                 top_score = finder.population.top_fitness
-                print(grid.to_table(finder.population.top_item).table)
+                print("\n" + grid.to_table(finder.population.top_item).table)
                 logging.info("new top fitness. distance from target: %d", dist)
             else:
                 no_change_count += 1
 
             if finder.population.top_fitness < top_score:
                 top_score = finder.population.top_fitness
-                print(grid.to_table(finder.population.top_item).table)
+                print("\n" + grid.to_table(finder.population.top_item).table)
                 logging.info("we lost our top score. current dist: %d", dist)
 
             dist = grid.calculate_distance(finder.population.top_item)
