@@ -273,7 +273,11 @@ class PathFinderOperationSequence:
         :return: The chromosome resulting from the genetic operations
         """
         chrom = self.choose(*self.cross(parent1, parent2))
-        for mutation in self.mutations:
-            chrom = mutation(chrom)
+        return self.mutate(chrom)
 
-        return chrom
+    def mutate(self, chrom: Chromosome) -> Chromosome:
+        curr = chrom
+        for mutation in self.mutations:
+            curr = mutation(curr)
+
+        return curr

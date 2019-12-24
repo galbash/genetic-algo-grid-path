@@ -12,6 +12,8 @@ uses.
 To run the application, simply run `python main.py`.
 Output will be written to the `out` directory.
 
+To list additional options, run `python main.py --help`.
+
 ## Generating graphs
 In order to re-generate graphs from execution data, execute `python graph_printer.py`.
 Output will be written to the `out/graphs` directory.
