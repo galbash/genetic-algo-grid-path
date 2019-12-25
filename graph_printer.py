@@ -11,12 +11,6 @@ from path_finder.reporter import Reader
 
 logging.getLogger().setLevel(logging.INFO)
 
-import numpy
-
-exp = lambda x: 10 ** x
-log_func = lambda y: numpy.log(y)
-
-
 class GraphCreator:
     """
     Creates Graphs from algorithm execution results
