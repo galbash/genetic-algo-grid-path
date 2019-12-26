@@ -9,10 +9,13 @@ executed in order to use the path solver, as it installs all the python dependen
 uses.
 
 ## Running the Application
-To run the application, simply run `python main.py`.
+To run the application, simply `cd` to the project directory and run `python main.py`.
 Output will be written to the `out` directory.
 
 To list additional options, run `python main.py --help`.
+
+You may have to set the `PYTHONPATH` to point to the project directory if you encounter
+import errors
 
 ## Generating graphs
 In order to re-generate graphs from execution data, execute `python graph_printer.py`.
